@@ -49,6 +49,7 @@
         "esri/rest/query",
         "esri/rest/support/Query"
       ], function (Map, SceneView, FeatureLayer, GraphicsLayer, query, Query) {
+        let peaksLayerView;
         // URL to feature service containing points representing the 50
         // most prominent peaks in the U.S.
         const peaksUrl =
@@ -128,7 +129,8 @@
               type: "simple-marker",
               size: 5
             }
-          }
+          },
+          outFields: ["ELEV_m", "ELEV_ft", "PROMINENCE_ft"]
         });
 
         /******************************************************************
@@ -159,6 +161,10 @@
           }
         });
 
+        view.whenLayerView(peaksLayer).then((layerView)=>{
+          peaksLayerView = layerView;
+        })
+
         // Call doQuery() each time the button is clicked
         view.when(function () {
           view.ui.add("optionsDiv", "bottom-right");
@@ -182,7 +188,7 @@
 
           // executes the query and calls getResults() once the promise is resolved
           // promiseRejected() is called if the promise is rejected
-          peaksLayer
+          peaksLayerView
             .queryFeatures(useWhereClause ? params : null)
             .then(getResults)
             .catch(promiseRejected);
